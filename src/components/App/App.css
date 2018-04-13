@@ -1,0 +1,25 @@
+.App {
+  text-align: center;
+}
+
+.content {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+}
+
+.feed-title {
+  text-align: left;
+}
+
+#form-div {
+  width: 60%;
+  margin: auto;
+}
+
+@media only screen and (min-width: 768px) {
+  #form-div {
+    width: 20%;
+    margin: auto;
+  }
+}
