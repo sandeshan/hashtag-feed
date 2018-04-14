@@ -31,6 +31,20 @@ app.get("/search/:hashtag", function(req, res) {
   );
 });
 
+app.get("/search/:hashtag/:max_id", function(req, res) {
+  client.get(
+    "search/tweets",
+    {
+      q: `${req.params.hashtag}`,
+      max_id: `${req.params.max_id}`,
+      count: 100
+    },
+    function(error, tweets, response) {
+      return res.json(tweets);
+    }
+  );
+});
+
 app.get("/", function(req, res) {
   res.sendFile(path.join(__dirname, "build", "index.html"));
 });
