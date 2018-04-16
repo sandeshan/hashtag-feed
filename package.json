@@ -1,35 +1,23 @@
 {
-  "name": "hashtag-feed",
+  "name": "event-tracker",
   "version": "0.1.0",
+  "main": "server.js",
   "private": true,
   "author": {
     "name": "Sandesh Naik",
     "email": "sandeshan@gmail.com"
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "concurrently": "^3.5.1",
     "dotenv": "^5.0.1",
     "express": "^4.16.3",
-    "lodash": "^4.17.5",
-    "material-ui": "^0.20.0",
-    "moment": "^2.22.0",
-    "react": "^16.3.1",
-    "react-dom": "^16.3.1",
-    "react-scripts": "1.1.4",
-    "semantic-ui-reveal": "^2.3.1",
-    "twit": "^2.2.9",
     "twitter": "^1.7.1"
   },
-  "proxy": "http://localhost:8080",
   "scripts": {
-    "start": "react-scripts start",
-    "server": "nodemon server/server.js",
-    "dev": "concurrently --kill-others-on-fail \"yarn server\" \"yarn start\"",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
-  },
-  "devDependencies": {
-    "concurrently": "^3.5.1"
+    "dev": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\"",
+    "client": "cd client && yarn start",
+    "server": "nodemon server.js",
+    "start": "nodemon server.js",
+    "heroku-postbuild": "cd client && yarn --production=false && yarn run build"
   }
 }
