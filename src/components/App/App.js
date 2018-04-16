@@ -5,6 +5,7 @@ import MuiThemeProvider from "material-ui/styles/MuiThemeProvider";
 import AppBar from "material-ui/AppBar";
 import { GridList, GridTile } from "material-ui/GridList";
 import TextField from "material-ui/TextField";
+import AutoComplete from "material-ui/AutoComplete";
 import FlatButton from "material-ui/FlatButton";
 import RaisedButton from "material-ui/RaisedButton";
 import { ListItem } from "material-ui/List";
@@ -16,21 +17,14 @@ import _ from "lodash";
 import moment from "moment";
 
 import common from "../../util/common";
+import { cyan500 } from "material-ui/styles/colors";
 
 let refreshTimer;
 let count = 0;
 
 const styles = {
-  root: {
-    display: "flex",
-    flexWrap: "wrap",
-    justifyContent: "space-around",
-    marginTop: 10,
-    overflowY: "auto",
-    height: "calc(100vh - 175px)"
-  },
   gridList: {
-    width: "85%",
+    width: "100%",
     height: "100%"
   }
 };
@@ -39,19 +33,45 @@ class App extends Component {
   constructor(props) {
     super(props);
 
+    // split search form and grid
+
     this.state = {
       showSearch: true,
       eventName: "My Event",
       hashtagName: "",
       tweets: [],
       tilesData: [],
-      tweetsInfo: [],
+      searchTerm: "",
       max_id: "",
-      isHovering: ""
+      isHovering: "",
+      numColums: 5
     };
   }
 
-  componentDidMount = () => {};
+  componentDidMount = () => {
+    window.addEventListener("resize", this.checkWindowWidth);
+    this.checkWindowWidth();
+  };
+
+  componentWillUnmount = () => {
+    window.removeEventListener("resize", this.checkWindowWidth);
+  };
+
+  checkWindowWidth = () => {
+    if (window.innerWidth < 500) {
+      this.setState({
+        numColums: 2
+      });
+    } else if (window.innerWidth < 800) {
+      this.setState({
+        numColums: 4
+      });
+    } else {
+      this.setState({
+        numColums: 5
+      });
+    }
+  };
 
   handleHover = id => {
     this.setState({
@@ -112,8 +132,7 @@ class App extends Component {
     this.setState({
       showSearch: false,
       tweets: [],
-      tilesData: [],
-      tweetsInfo: []
+      tilesData: []
     });
 
     axios.get(`/search/${query}`).then(res => {
@@ -123,26 +142,61 @@ class App extends Component {
     refreshTimer = setInterval(this.getNewTweets, 5000);
   };
 
+  handleSearch = (searchTerm, index) => {
+    if (typeof searchTerm === "string") {
+      this.setState({
+        searchTerm: searchTerm
+      });
+    } else {
+      this.setState({
+        searchTerm: searchTerm.text
+      });
+    }
+  };
+
+  handleUpdate = (searchText, dataSource, params) => {
+    this.setState({
+      searchTerm: searchText
+    });
+  };
+
   render() {
     let tilesData = this.state.tilesData;
-    let tweetsInfo = this.state.tweetsInfo;
+    let searchDataSource = [];
 
     this.state.tweets.forEach(tweet => {
-      if (_.findIndex(tilesData, ["id", tweet.id_str]) === -1)
+      if (_.findIndex(tilesData, ["id", tweet.id_str]) === -1) {
         tilesData.unshift({
+          id: tweet.id_str,
           img: `${tweet.entities.media[0].media_url_https}:medium`,
-          id: tweet.id_str
+          created_at: tweet.created_at,
+          user_name: tweet.user.name,
+          user_img: tweet.user.profile_image_url_https,
+          user_id: tweet.user.id
         });
-      tweetsInfo.unshift({
-        username: tweet.user.name,
-        img: tweet.user.profile_image_url_https,
-        created_at: tweet.created_at,
-        id: tweet.id_str,
-        user_id: tweet.user.id
+      }
+    });
+
+    let userCount = _.uniqBy(tilesData, "user_id").length;
+    let uniqUsers = _.uniqBy(tilesData, "user_id");
+
+    _.sortBy(uniqUsers, [
+      function(o) {
+        return o.user_name;
+      }
+    ]).forEach(tile => {
+      searchDataSource.push({
+        text: tile.user_name,
+        value: tile.user_id
       });
     });
 
-    let userCount = _.uniqBy(tweetsInfo, "user_id").length;
+    if (this.state.searchTerm !== "") {
+      let search = this.state.searchTerm;
+      tilesData = _.filter(tilesData, function(o) {
+        return o.user_name.indexOf(search) !== -1;
+      });
+    }
 
     return (
       <MuiThemeProvider>
@@ -192,49 +246,68 @@ class App extends Component {
                 <div>
                   <h1 className="title-text">{this.state.eventName}</h1>
                 </div>
-                <div style={{ display: "flex" }}>
+              </div>
+              <div className="feed-subtitle">
+                <div className="subtitle-text">
                   <p className="hashtag-text">#{this.state.hashtagName}</p>{" "}
                   <p className="tweets-info-text">
                     {this.state.tweets.length} Posts // {userCount} Users
                   </p>
                 </div>
+                <div className="search-div">
+                  <AutoComplete
+                    floatingLabelText="Search by username"
+                    filter={AutoComplete.fuzzyFilter}
+                    dataSource={searchDataSource}
+                    onNewRequest={this.handleSearch}
+                    onUpdateInput={this.handleUpdate}
+                    floatingLabelStyle={{ color: cyan500 }}
+                    underlineStyle={{ borderColor: cyan500 }}
+                    maxSearchResults={5}
+                  />
+                </div>
               </div>
-              <div style={styles.root}>
-                <GridList cellHeight={200} cols={5} style={styles.gridList}>
+              <div className="feed-container">
+                <GridList
+                  cellHeight={200}
+                  cols={this.state.numColums}
+                  style={styles.gridList}
+                >
                   {tilesData.map(tile => (
                     <GridTile
                       key={tile.id}
                       className="tweet-info-grid"
+                      style={{
+                        backgroundImage: `url(${tile.img})`
+                      }}
                       onMouseEnter={() => this.handleHover(tile.id)}
                       onMouseLeave={() => this.handleHover("")}
                     >
-                      {this.state.isHovering !== tile.id ? (
-                        <img src={tile.img} alt="" className="grid-img" />
-                      ) : (
-                        <div>
-                          <ListItem
-                            leftAvatar={
-                              <Avatar
-                                src={tweetsInfo.find(x => x.id === tile.id).img}
-                              />
-                            }
-                            rightIcon={<img src={TwitterIcon} alt="logo" />}
-                            className="white-text"
-                            primaryText={
-                              tweetsInfo.find(x => x.id === tile.id).username
-                            }
-                            secondaryText={moment(
-                              tweetsInfo.find(x => x.id === tile.id).created_at
-                            ).fromNow()}
-                          />
-                          <FlatButton
-                            label="View Tweet"
-                            labelStyle={{ color: "white" }}
-                            href={`https://twitter.com/statuses/${tile.id}`}
-                            target="_blank"
-                          />
-                        </div>
-                      )}
+                      <div
+                        className={
+                          "tweet-hover " +
+                          (this.state.isHovering === tile.id ? "" : "hidden")
+                        }
+                      >
+                        <ListItem
+                          leftAvatar={<Avatar src={tile.user_img} />}
+                          rightIcon={<img src={TwitterIcon} alt="logo" />}
+                          className="white-text"
+                          primaryText={tile.user_name}
+                          secondaryText={
+                            <p className="white-text">
+                              {moment(tile.created_at).fromNow()}
+                            </p>
+                          }
+                        />
+                        <FlatButton
+                          label="View Tweet"
+                          labelStyle={{ color: "white" }}
+                          className="view-tweet-btn"
+                          href={`https://twitter.com/statuses/${tile.id}`}
+                          target="_blank"
+                        />
+                      </div>
                     </GridTile>
                   ))}
                 </GridList>
