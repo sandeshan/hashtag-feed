@@ -101,7 +101,7 @@ class App extends Component {
       });
 
       count++;
-      if (count === 5) clearInterval(refreshTimer);
+      if (count >= 5) clearInterval(refreshTimer);
     }
   };
 
@@ -126,20 +126,28 @@ class App extends Component {
   handleSubmit = e => {
     e.preventDefault();
 
-    let query = "%23" + this.state.hashtagName;
-    let tweetsArray = [];
+    count = 0;
 
-    this.setState({
-      showSearch: false,
-      tweets: [],
-      tilesData: []
-    });
+    if (this.state.hashtagName.length > 0) {
+      let query = "%23" + this.state.hashtagName;
+      let tweetsArray = [];
 
-    axios.get(`/search/${query}`).then(res => {
-      this.parseTweets(res, tweetsArray);
-    });
+      this.setState({
+        showSearch: false,
+        tweets: [],
+        tilesData: []
+      });
 
-    refreshTimer = setInterval(this.getNewTweets, 5000);
+      axios.get(`/search/${query}`).then(res => {
+        this.parseTweets(res, tweetsArray);
+      });
+
+      refreshTimer = setInterval(this.getNewTweets, 5000);
+    } else {
+      this.setState({
+        showError: true
+      });
+    }
   };
 
   handleSearch = (searchTerm, index) => {
@@ -192,9 +200,9 @@ class App extends Component {
     });
 
     if (this.state.searchTerm !== "") {
-      let search = this.state.searchTerm;
+      let search = this.state.searchTerm.toLowerCase();
       tilesData = _.filter(tilesData, function(o) {
-        return o.user_name.indexOf(search) !== -1;
+        return o.user_name.toLowerCase().indexOf(search) !== -1;
       });
     }
 
@@ -227,10 +235,15 @@ class App extends Component {
                   floatingLabelText="Hashtag"
                   fullWidth={true}
                   onChange={this.handleHashtagChange}
+                  errorText={
+                    this.state.showError
+                      ? "Please enter the event Hashtag!"
+                      : null
+                  }
                 />
                 <br />
                 <RaisedButton
-                  label="Submit"
+                  label="Start Event"
                   type="submit"
                   primary={true}
                   fullWidth={true}
@@ -259,17 +272,18 @@ class App extends Component {
                     floatingLabelText="Search by username"
                     filter={AutoComplete.fuzzyFilter}
                     dataSource={searchDataSource}
+                    maxSearchResults={5}
                     onNewRequest={this.handleSearch}
                     onUpdateInput={this.handleUpdate}
                     floatingLabelStyle={{ color: cyan500 }}
                     underlineStyle={{ borderColor: cyan500 }}
-                    maxSearchResults={5}
                   />
                 </div>
               </div>
               <div className="feed-container">
                 <GridList
-                  cellHeight={200}
+                  cellHeight={220}
+                  padding={8}
                   cols={this.state.numColums}
                   style={styles.gridList}
                 >
