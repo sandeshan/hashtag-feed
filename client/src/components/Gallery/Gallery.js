@@ -6,6 +6,7 @@ import AutoComplete from "material-ui/AutoComplete";
 import FlatButton from "material-ui/FlatButton";
 import { ListItem } from "material-ui/List";
 import Avatar from "material-ui/Avatar";
+
 import TwitterIcon from "../../assets/twitter.svg";
 
 import _ from "lodash";
@@ -42,10 +43,14 @@ class Gallery extends Component {
     let searchDataSource = [];
 
     this.props.tweets.forEach(tweet => {
-      if (_.findIndex(tilesData, ["id", tweet.id_str]) === -1) {
+      let img_link = `${tweet.entities.media[0].media_url_https}:medium`;
+      if (
+        _.findIndex(tilesData, ["id", tweet.id_str]) === -1 &&
+        _.findIndex(tilesData, ["img", img_link]) === -1
+      ) {
         tilesData.unshift({
           id: tweet.id_str,
-          img: `${tweet.entities.media[0].media_url_https}:medium`,
+          img: img_link,
           created_at: tweet.created_at,
           user_name: tweet.user.name,
           user_screen_name: tweet.user.screen_name,
@@ -55,8 +60,8 @@ class Gallery extends Component {
       }
     });
 
-    let userCount = _.uniqBy(tilesData, "user_id").length;
     let uniqUsers = _.uniqBy(tilesData, "user_id");
+    let userCount = _.uniqBy(tilesData, "user_id").length;
 
     _.sortBy(uniqUsers, [
       function(o) {
@@ -91,7 +96,7 @@ class Gallery extends Component {
           <div className="subtitle-text">
             <p className="hashtag-text">#{this.props.hashtagName}</p>{" "}
             <p className="tweets-info-text">
-              <b>{this.props.tweets.length} </b>Posts // <b>{userCount} </b>Users
+              <b>{tilesData.length} </b>Posts // <b>{userCount} </b>Users
             </p>
           </div>
           <div className="search-div">
@@ -109,7 +114,7 @@ class Gallery extends Component {
         </div>
         <div className="feed-container">
           <GridList
-            cellHeight={220}
+            cellHeight={230}
             padding={8}
             cols={this.props.numColums}
             style={styles.gridList}

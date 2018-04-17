@@ -1,6 +1,6 @@
 .feed-title {
   text-align: left;
-  width: 85%;
+  width: 95%;
   margin: auto;
 }
 
@@ -22,7 +22,7 @@ h1.title-text {
 
 .feed-subtitle {
   text-align: left;
-  width: 85%;
+  width: 95%;
   margin: auto;
 }
 
@@ -34,6 +34,7 @@ h1.title-text {
 .subtitle-text {
   display: flex;
   flex: 0 0 83%;
+  flex-basis: calc(100% - 280px);
 }
 
 .search-div {
@@ -42,7 +43,7 @@ h1.title-text {
 }
 
 .feed-container {
-  width: 85%;
+  width: 95%;
   margin: auto;
   margin-top: 10px;
   overflow-y: auto;
@@ -97,9 +98,15 @@ h1.title-text {
 @media only screen and (min-width: 768px) {
   .feed-container {
     height: calc(100vh - 165px);
+    width: 80%;
+  }
+
+  .feed-title {
+    width: 80%;
   }
 
   .feed-subtitle {
+    width: 80%;
     display: flex;
   }
 

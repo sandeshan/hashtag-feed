@@ -4,6 +4,7 @@ import "./App.css";
 import MuiThemeProvider from "material-ui/styles/MuiThemeProvider";
 import AppBar from "material-ui/AppBar";
 import FlatButton from "material-ui/FlatButton";
+import Snackbar from "material-ui/Snackbar";
 
 import Form from "../Form/Form";
 import Gallery from "../Gallery/Gallery";
@@ -20,8 +21,6 @@ class App extends Component {
   constructor(props) {
     super(props);
 
-    // split search form and grid
-
     this.state = {
       showSearch: true,
       showError: false,
@@ -32,7 +31,10 @@ class App extends Component {
       searchTerm: "",
       max_id: "",
       isHovering: "",
-      numColums: 5
+      numColums: 5,
+      showSnackbar: false,
+      snackbarMessage: "Loading new tweets ...",
+      snackbarTimeOut: 3000
     };
   }
 
@@ -79,8 +81,12 @@ class App extends Component {
   };
 
   handleHomeClick = () => {
+    count = 0;
+    clearInterval(refreshTimer);
+
     this.setState({
-      showSearch: true
+      showSearch: true,
+      snackbarMessage: "Loading new tweets ..."
     });
   };
 
@@ -91,8 +97,22 @@ class App extends Component {
         this.parseTweets(res, this.state.tweets);
       });
 
+      this.setState({
+        showSnackbar: true,
+        snackbarMessage: "Loading new tweets ...",
+        snackbarTimeOut: 3000
+      });
+
       count++;
-      if (count >= 5) clearInterval(refreshTimer);
+      if (count >= 10) clearInterval(refreshTimer);
+    } else {
+      if (this.state.snackbarMessage !== "No more new tweets.") {
+        this.setState({
+          showSnackbar: true,
+          snackbarMessage: "No more new tweets.",
+          snackbarTimeOut: 6000
+        });
+      }
     }
   };
 
@@ -119,7 +139,11 @@ class App extends Component {
       this.setState({
         numColums: 2
       });
-    } else if (window.innerWidth < 800) {
+    } else if (window.innerWidth < 900) {
+      this.setState({
+        numColums: 3
+      });
+    } else if (window.innerWidth < 1200) {
       this.setState({
         numColums: 4
       });
@@ -128,6 +152,12 @@ class App extends Component {
         numColums: 5
       });
     }
+  };
+
+  handleSnackbarClose = () => {
+    this.setState({
+      showSnackbar: false
+    });
   };
 
   handleHover = id => {
@@ -182,6 +212,12 @@ class App extends Component {
               handleHover={this.handleHover}
               handleSearch={this.handleSearch}
               handleUpdate={this.handleUpdate}
+            />
+            <Snackbar
+              open={this.state.showSnackbar}
+              message={this.state.snackbarMessage}
+              autoHideDuration={this.state.snackbarTimeOut}
+              onRequestClose={this.handleSnackbarClose}
             />
           </div>
         </div>
