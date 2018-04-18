@@ -1,5 +1,5 @@
 {
-  "name": "event-tracker",
+  "name": "hashtag-feed",
   "version": "0.1.0",
   "main": "server.js",
   "private": true,

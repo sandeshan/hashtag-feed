@@ -1,16 +1,13 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 import "./Gallery.css";
 
-import { GridList, GridTile } from "material-ui/GridList";
-import AutoComplete from "material-ui/AutoComplete";
-import FlatButton from "material-ui/FlatButton";
-import { ListItem } from "material-ui/List";
-import Avatar from "material-ui/Avatar";
+import Tile from "../Tile/Tile";
 
-import TwitterIcon from "../../assets/twitter.svg";
+import { GridList } from "material-ui/GridList";
+import AutoComplete from "material-ui/AutoComplete";
 
 import _ from "lodash";
-import moment from "moment";
 
 import { cyan500 } from "material-ui/styles/colors";
 
@@ -22,20 +19,32 @@ const styles = {
 };
 
 class Gallery extends Component {
-  handleHover = id => {
-    this.props.handleHover(id);
-  };
+  constructor(props) {
+    super(props);
 
+    this.state = {
+      searchTerm: ""
+    };
+  }
+
+  // Handle search event
   handleSearch = (searchTerm, index) => {
     if (typeof searchTerm === "string") {
-      this.props.handleSearch(searchTerm);
+      this.setState({
+        searchTerm: searchTerm
+      });
     } else {
-      this.props.handleSearch(searchTerm.text);
+      this.setState({
+        searchTerm: searchTerm.text
+      });
     }
   };
 
+  // Handle search filed update
   handleUpdate = (searchText, dataSource, params) => {
-    this.props.handleUpdate(searchText);
+    this.setState({
+      searchTerm: searchText
+    });
   };
 
   render() {
@@ -74,8 +83,8 @@ class Gallery extends Component {
       });
     });
 
-    if (this.props.searchTerm !== "") {
-      let search = this.props.searchTerm.toLowerCase();
+    if (this.state.searchTerm !== "") {
+      let search = this.state.searchTerm.toLowerCase();
       tilesData = _.filter(tilesData, function(o) {
         return o.user_name.toLowerCase().indexOf(search) !== -1;
       });
@@ -94,7 +103,11 @@ class Gallery extends Component {
         </div>
         <div className="feed-subtitle">
           <div className="subtitle-text">
-            <p className="hashtag-text">#{this.props.hashtagName}</p>{" "}
+            <p className="hashtag-text">
+              {this.props.hashtagName.indexOf("#") === 0
+                ? this.props.hashtagName
+                : `#${this.props.hashtagName}`}
+            </p>{" "}
             <p className="tweets-info-text">
               <b>{tilesData.length} </b>Posts // <b>{userCount} </b>Users
             </p>
@@ -114,63 +127,38 @@ class Gallery extends Component {
         </div>
         <div className="feed-container">
           <GridList
-            cellHeight={230}
+            cellHeight={this.props.cellHeight}
             padding={8}
-            cols={this.props.numColums}
+            cols={this.props.numColumns}
             style={styles.gridList}
           >
-            {tilesData.map(tile => (
-              <GridTile
-                key={tile.id}
-                className="tweet-info-grid"
-                style={{
-                  backgroundImage: `url(${tile.img})`
-                }}
-                onMouseEnter={() => this.handleHover(tile.id)}
-                onMouseLeave={() => this.handleHover("")}
-              >
-                <div
-                  className={
-                    "tweet-hover " +
-                    (this.props.isHovering === tile.id ? "" : "hidden")
-                  }
-                >
-                  <ListItem
-                    leftAvatar={<Avatar src={tile.user_img} />}
-                    rightIcon={<img src={TwitterIcon} alt="logo" />}
-                    className="white-text"
-                    primaryText={
-                      <a
-                        href={`https://twitter.com/${tile.user_screen_name}`}
-                        target="_blank"
-                      >
-                        {tile.user_name}
-                      </a>
-                    }
-                    secondaryText={
-                      <p className="white-text">
-                        {moment(
-                          tile.created_at,
-                          "ddd MMM DD HH:mm:ss ZZ YYYY"
-                        ).fromNow()}
-                      </p>
-                    }
-                  />
-                  <FlatButton
-                    label="View Tweet"
-                    labelStyle={{ color: "white" }}
-                    className="view-tweet-btn"
-                    href={`https://twitter.com/statuses/${tile.id}`}
-                    target="_blank"
-                  />
-                </div>
-              </GridTile>
-            ))}
+            {tilesData.map(tile => <Tile key={tile.id} tweetInfo={tile} />)}
           </GridList>
         </div>
       </div>
     );
   }
 }
+
+// prop-types definition
+Gallery.propTypes = {
+  showSearch: PropTypes.bool,
+  eventName: PropTypes.string,
+  hashtagName: PropTypes.string,
+  tweets: PropTypes.arrayOf(PropTypes.object),
+  tilesData: PropTypes.arrayOf(PropTypes.object),
+  numColumns: PropTypes.number,
+  cellHeight: PropTypes.number
+};
+
+// default prop values
+Gallery.defaultProps = {
+  showSearch: true,
+  eventName: "My Event",
+  tweets: [],
+  tilesData: [],
+  numColumns: 5,
+  cellHeight: 240
+};
 
 export default Gallery;

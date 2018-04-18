@@ -1,0 +1,31 @@
+.tweet-info-grid {
+  display: flex !important;
+  flex-direction: column;
+  text-align: center;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.tweet-hover {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.white-text {
+  color: #fff !important;
+  margin-bottom: 1em !important;
+}
+
+.white-text a {
+  color: #fff !important;
+}
+
+.view-tweet-btn {
+  border: 2px solid white !important;
+  border-radius: 15px !important;
+}
+
+.view-tweet-btn > div {
+  line-height: 32px !important;
+}

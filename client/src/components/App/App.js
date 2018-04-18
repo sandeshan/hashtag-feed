@@ -1,18 +1,17 @@
 import React, { Component } from "react";
 import "./App.css";
 
+import Form from "../Form/Form";
+import Gallery from "../Gallery/Gallery";
+
 import MuiThemeProvider from "material-ui/styles/MuiThemeProvider";
 import AppBar from "material-ui/AppBar";
 import FlatButton from "material-ui/FlatButton";
 import Snackbar from "material-ui/Snackbar";
 
-import Form from "../Form/Form";
-import Gallery from "../Gallery/Gallery";
-
 import axios from "axios";
 
-import common from "../../util/common";
-import TwitterIcon from "../../assets/twitter.svg";
+import { getMaxID } from "../../util/common";
 
 let refreshTimer;
 let count = 0;
@@ -21,6 +20,7 @@ class App extends Component {
   constructor(props) {
     super(props);
 
+    // initial state of App
     this.state = {
       showSearch: true,
       showError: false,
@@ -28,16 +28,18 @@ class App extends Component {
       hashtagName: "",
       tweets: [],
       tilesData: [],
-      searchTerm: "",
       max_id: "",
-      isHovering: "",
-      numColums: 5,
+      numColumns: 5,
+      cellHeight: 240,
       showSnackbar: false,
       snackbarMessage: "Loading new tweets ...",
       snackbarTimeOut: 3000
     };
   }
 
+  // START App lifecycle methods
+
+  // attach listener to observe window re-size events. Required to set number of columns in grid.
   componentDidMount = () => {
     window.addEventListener("resize", this.checkWindowWidth);
     this.checkWindowWidth();
@@ -47,19 +49,35 @@ class App extends Component {
     window.removeEventListener("resize", this.checkWindowWidth);
   };
 
+  // END App lifecycle methods
+
+  // START Form Handler methods
+
+  // handle event name updates
   handleNameChange = eventName => {
     this.setState({ eventName: eventName });
   };
 
+  // handle hashtag name updates
   handleHashtagChange = hashtagName => {
-    this.setState({ hashtagName: hashtagName });
+    this.setState({
+      hashtagName: hashtagName,
+      showError: hashtagName.length === 0
+    });
   };
 
+  // handle form submit/"Start Event" button click event
   handleSubmit = () => {
     count = 0;
 
+    // check if hashtag is entered. If not, then show error in form
     if (this.state.hashtagName.length > 0) {
-      let query = "%23" + this.state.hashtagName;
+      // append '#' (%23 in ascii) to search term if absent
+      let query =
+        this.state.hashtagName.indexOf("#") === 0
+          ? "%23" + this.state.hashtagName.substr(1)
+          : "%23" + this.state.hashtagName;
+
       let tweetsArray = [];
 
       this.setState({
@@ -68,6 +86,7 @@ class App extends Component {
         tilesData: []
       });
 
+      // fetch tweets from back-end
       axios.get(`/search/${query}`).then(res => {
         this.parseTweets(res, tweetsArray);
       });
@@ -80,6 +99,9 @@ class App extends Component {
     }
   };
 
+  // END Form Handler methods
+
+  // Handle 'Home' button click event
   handleHomeClick = () => {
     count = 0;
     clearInterval(refreshTimer);
@@ -90,9 +112,17 @@ class App extends Component {
     });
   };
 
+  // START Tweet fetch and parse methods.
+
+  // Method to fetch next set of tweets using current max_id.
   getNewTweets = () => {
+    // only fetch next set of tweets if new max_id is present.. Else, show 'no new tweets' message.
     if (this.state.max_id !== "") {
-      let query = "%23" + this.state.hashtagName;
+      let query =
+        this.state.hashtagName.indexOf("#") === 0
+          ? "%23" + this.state.hashtagName.substr(1)
+          : "%23" + this.state.hashtagName;
+
       axios.get(`/search/${query}/${this.state.max_id}`).then(res => {
         this.parseTweets(res, this.state.tweets);
       });
@@ -106,6 +136,7 @@ class App extends Component {
       count++;
       if (count >= 10) clearInterval(refreshTimer);
     } else {
+      // No max_id; show 'no new tweets' message.
       if (this.state.snackbarMessage !== "No more new tweets.") {
         this.setState({
           showSnackbar: true,
@@ -116,12 +147,14 @@ class App extends Component {
     }
   };
 
+  // Method to parse tweets response, and store new max_id, if available.
   parseTweets = (json, tweetsArray) => {
     let max_id = "";
     if (json.data.search_metadata.next_results !== undefined) {
-      max_id = common.getMaxID(json.data.search_metadata.next_results);
+      max_id = getMaxID(json.data.search_metadata.next_results);
     }
 
+    // add each tweet to start of tweets array.
     json.data.statuses.forEach(tweet => {
       if (tweet.entities.media != null && !tweet.possibly_sensitive) {
         tweetsArray.unshift(tweet);
@@ -134,47 +167,51 @@ class App extends Component {
     });
   };
 
+  // END Tweet fetch and parse methods.
+
+  // Method to change number of columns in the grid and cell height, based on browser window width.
   checkWindowWidth = () => {
-    if (window.innerWidth < 500) {
+    let width = window.innerWidth;
+
+    // set number of columns in grid.
+    if (width < 500) {
       this.setState({
-        numColums: 2
+        numColumns: 2
       });
-    } else if (window.innerWidth < 900) {
+    } else if (width < 900) {
       this.setState({
-        numColums: 3
+        numColumns: 3
       });
-    } else if (window.innerWidth < 1200) {
+    } else if (width < 1200) {
       this.setState({
-        numColums: 4
+        numColumns: 4
       });
     } else {
       this.setState({
-        numColums: 5
+        numColumns: 5
+      });
+    }
+
+    // set cell height.
+    if (width <= 1200) {
+      this.setState({
+        cellHeight: 200
+      });
+    } else if (width > 2000) {
+      this.setState({
+        cellHeight: 280
+      });
+    } else {
+      this.setState({
+        cellHeight: 240
       });
     }
   };
 
+  // handle snackbar close event.
   handleSnackbarClose = () => {
     this.setState({
       showSnackbar: false
-    });
-  };
-
-  handleHover = id => {
-    this.setState({
-      isHovering: id
-    });
-  };
-
-  handleSearch = searchTerm => {
-    this.setState({
-      searchTerm: searchTerm
-    });
-  };
-
-  handleUpdate = searchText => {
-    this.setState({
-      searchTerm: searchText
     });
   };
 
@@ -204,14 +241,10 @@ class App extends Component {
               showSearch={this.state.showSearch}
               eventName={this.state.eventName}
               hashtagName={this.state.hashtagName}
-              searchTerm={this.state.searchTerm}
               tweets={this.state.tweets}
               tilesData={this.state.tilesData}
-              numColums={this.state.numColums}
-              isHovering={this.state.isHovering}
-              handleHover={this.handleHover}
-              handleSearch={this.handleSearch}
-              handleUpdate={this.handleUpdate}
+              numColumns={this.state.numColumns}
+              cellHeight={this.state.cellHeight}
             />
             <Snackbar
               open={this.state.showSnackbar}

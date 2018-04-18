@@ -1,18 +1,22 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 import "./Form.css";
 
 import TextField from "material-ui/TextField";
 import RaisedButton from "material-ui/RaisedButton";
 
 class Form extends Component {
+  // pass entered event name value to parent
   handleNameChange = event => {
     this.props.handleNameChange(event.target.value);
   };
 
+  // pass entered hashtag value to parent
   handleHashtagChange = event => {
     this.props.handleHashtagChange(event.target.value);
   };
 
+  // pass submit ('Start Event') action to parent
   handleSubmit = e => {
     e.preventDefault();
     this.props.handleSubmit();
@@ -48,5 +52,20 @@ class Form extends Component {
     );
   }
 }
+
+// prop-types definition
+Form.propTypes = {
+  showSearch: PropTypes.bool,
+  showError: PropTypes.bool,
+  handleNameChange: PropTypes.func,
+  handleHashtagChange: PropTypes.func,
+  handleSubmit: PropTypes.func
+};
+
+// default prop values
+Form.defaultProps = {
+  showSearch: true,
+  showError: false
+};
 
 export default Form;
