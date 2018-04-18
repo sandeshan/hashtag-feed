@@ -55,7 +55,7 @@ class App extends Component {
 
   // handle event name updates
   handleNameChange = eventName => {
-    this.setState({ eventName: eventName });
+    this.setState({ eventName: eventName === "" ? "My Event" : eventName });
   };
 
   // handle hashtag name updates
