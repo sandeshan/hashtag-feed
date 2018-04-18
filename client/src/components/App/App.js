@@ -14,7 +14,7 @@ import axios from "axios";
 import { getMaxID } from "../../util/common";
 
 let refreshTimer;
-let count = 0;
+let refreshInterval = 10000; // refresh every 10 seconds
 
 class App extends Component {
   constructor(props) {
@@ -68,8 +68,6 @@ class App extends Component {
 
   // handle form submit/"Start Event" button click event
   handleSubmit = () => {
-    count = 0;
-
     // check if hashtag is entered. If not, then show error in form
     if (this.state.hashtagName.length > 0) {
       // append '#' (%23 in ascii) to search term if absent
@@ -91,7 +89,7 @@ class App extends Component {
         this.parseTweets(res, tweetsArray);
       });
 
-      refreshTimer = setInterval(this.getNewTweets, 5000);
+      refreshTimer = setInterval(this.getNewTweets, refreshInterval);
     } else {
       this.setState({
         showError: true
@@ -103,7 +101,6 @@ class App extends Component {
 
   // Handle 'Home' button click event
   handleHomeClick = () => {
-    count = 0;
     clearInterval(refreshTimer);
 
     this.setState({
@@ -132,9 +129,6 @@ class App extends Component {
         snackbarMessage: "Loading new tweets ...",
         snackbarTimeOut: 3000
       });
-
-      count++;
-      if (count >= 10) clearInterval(refreshTimer);
     } else {
       // No max_id; show 'no new tweets' message.
       if (this.state.snackbarMessage !== "No more new tweets.") {

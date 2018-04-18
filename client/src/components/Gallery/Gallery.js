@@ -70,6 +70,7 @@ class Gallery extends Component {
     });
 
     let uniqUsers = _.uniqBy(tilesData, "user_id");
+    let postCount = tilesData.length;
     let userCount = _.uniqBy(tilesData, "user_id").length;
 
     _.sortBy(uniqUsers, [
@@ -109,7 +110,7 @@ class Gallery extends Component {
                 : `#${this.props.hashtagName}`}
             </p>{" "}
             <p className="tweets-info-text">
-              <b>{tilesData.length} </b>Posts // <b>{userCount} </b>Users
+              <b>{postCount} </b>Posts // <b>{userCount} </b>Users
             </p>
           </div>
           <div className="search-div">
@@ -132,7 +133,13 @@ class Gallery extends Component {
             cols={this.props.numColumns}
             style={styles.gridList}
           >
-            {tilesData.map(tile => <Tile key={tile.id} tweetInfo={tile} />)}
+            {tilesData.map(tile => (
+              <Tile
+                key={tile.id}
+                tweetInfo={tile}
+                numColumns={this.props.numColumns}
+              />
+            ))}
           </GridList>
         </div>
       </div>

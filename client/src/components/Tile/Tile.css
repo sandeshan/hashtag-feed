@@ -15,10 +15,16 @@
 .white-text {
   color: #fff !important;
   margin-bottom: 1em !important;
+  font-size: 0.8em !important;
 }
 
 .white-text a {
   color: #fff !important;
+}
+
+.tweet-icon {
+  width: 18px !important;
+  height: 18px !important;
 }
 
 .view-tweet-btn {
@@ -28,4 +34,16 @@
 
 .view-tweet-btn > div {
   line-height: 32px !important;
+}
+
+/* styles for large screens */
+@media only screen and (min-width: 768px) {
+  .white-text {
+    font-size: 1em !important;
+  }
+
+  .tweet-icon {
+    width: 24px !important;
+    height: 24px !important;
+  }
 }

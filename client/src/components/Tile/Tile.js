@@ -29,6 +29,7 @@ class Tile extends Component {
 
   render() {
     let tile = this.props.tweetInfo;
+    let avatarSize = this.props.numColumns > 3 ? 40 : 25; // small user image for mobile screens
 
     return (
       <GridTile
@@ -46,9 +47,12 @@ class Tile extends Component {
           }
         >
           <ListItem
-            leftAvatar={<Avatar src={tile.user_img} />}
-            rightIcon={<img src={TwitterIcon} alt="logo" />}
+            leftAvatar={<Avatar src={tile.user_img} size={avatarSize} />}
+            rightIcon={
+              <img className="tweet-icon" src={TwitterIcon} alt="logo" />
+            }
             className="white-text"
+            innerDivStyle={{ paddingLeft: "25px", paddingRight: "25px" }}
             primaryText={
               <a
                 href={`https://twitter.com/${tile.user_screen_name}`}

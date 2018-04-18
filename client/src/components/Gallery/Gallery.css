@@ -6,11 +6,11 @@
 
 .title-text {
   margin-bottom: 0;
-  font-size: 2em;
+  font-size: 2.2em;
 }
 
 h1.title-text {
-  margin-top: 0.2em;
+  margin-top: 0em;
 }
 
 .feed-subtitle {
@@ -29,7 +29,7 @@ h1.title-text {
   margin-top: 0.5em;
   margin-right: 0.5em;
   font-weight: 700;
-  font-size: 1em;
+  font-size: 1.2em;
 }
 
 .subtitle-text {
@@ -40,7 +40,7 @@ h1.title-text {
 
 .tweets-info-text {
   margin-top: 0.5em;
-  font-size: 1em;
+  font-size: 1.2em;
   color: #757575;
 }
 
@@ -54,7 +54,7 @@ h1.title-text {
   margin: auto;
   margin-top: 10px;
   overflow-y: auto;
-  height: calc(100vh - 190px);
+  height: calc(100vh - 195px);
 }
 
 /* styles for large screens */
@@ -79,15 +79,15 @@ h1.title-text {
   }
 
   .title-text {
-    font-size: 2.5em;
+    font-size: 2.8em;
   }
 
   .hashtag-text {
-    font-size: 1.4em;
+    font-size: 1.6em;
   }
 
   .tweets-info-text {
-    font-size: 1.4em;
+    font-size: 1.6em;
   }
 }
 
