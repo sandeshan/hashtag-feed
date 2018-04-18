@@ -6,7 +6,7 @@
 
 ## Live Demo:
 
-* [Hosted here](https://hashtag-feed.herokuapp.com/))
+* [Hosted here](https://hashtag-feed.herokuapp.com/)
 
 ## Features:
 
