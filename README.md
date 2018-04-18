@@ -6,7 +6,7 @@
 
 ## Live Demo:
 
-* [Hosted here](https://stormy-tundra-45942.herokuapp.com/)
+* [Hosted here](https://hashtag-feed.herokuapp.com/))
 
 ## Features:
 
