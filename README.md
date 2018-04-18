@@ -38,7 +38,7 @@
 * Prepare Twitter Access Keys/Tokens:
 
   * Create file '.env' in root directory.
-  * Place Twiiter credentials in this file as shown below:
+  * Place Twitter credentials in this file as shown below:
     ```
     TWITTER_CONSUMER_KEY=<CONSUMER_KEY>
     TWITTER_CONSUMER_SECRET=<CONSUMER_SECRET>
